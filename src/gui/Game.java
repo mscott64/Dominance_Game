@@ -25,14 +25,52 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 	private JButton submit;
 	private Const.Mode mode = Const.Mode.QUES;
 	
+	private JPanel windows;
+	private Container start;
+	private Container game;
+	private Container exit;
+	
 	public Game() {
 		frameInit();
 		setTitle("Dominance Game");
 		setSize(Const.SIZE_X, Const.SIZE_Y);
-		Container c = getContentPane();
-		GroupLayout g = new GroupLayout(c);
-		c.setLayout(g);
-		c.setBackground(Color.black);
+		
+		start = new Container();
+		game = new Container();
+		exit = new Container();
+		
+		windows = new JPanel(new CardLayout());
+		windows.setBackground(Color.black);
+		initStartWindow();
+		
+		windows.add(start, Const.BEGIN);
+		windows.add(game, Const.START);
+		windows.add(exit, Const.QUIT);
+		
+		setContentPane(windows);
+		CardLayout cl = (CardLayout)windows.getLayout();
+		cl.show(windows, Const.BEGIN);
+	}
+	
+	private void initStartWindow() {
+		start.setLayout(new BoxLayout(start, BoxLayout.Y_AXIS));
+		JLabel title = new JLabel("DOMINANCE");
+		title.setFont(Const.F);
+		title.setForeground(Color.red);
+		
+		JButton startButton = new JButton(Const.START);
+		startButton.addActionListener(this);
+		
+		start.add(Box.createVerticalGlue());
+		addCenter(title, start);
+		start.add(Box.createVerticalGlue());
+		addCenter(startButton, start);
+		start.add(Box.createVerticalGlue());
+	}
+
+	private void initGameWindow() {
+		GroupLayout g = new GroupLayout(game);
+		game.setLayout(g);
 		
 		// Set up CFG display
 		p = new CFGPanel(CFG.readFromFile(Const.DEFAULT_PATH + "cfg1.txt"));
@@ -88,7 +126,8 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 		console.setLineWrap(true);
 		JScrollPane s = new JScrollPane(console);
 		s.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		s.setMaximumSize(new Dimension(Const.SIZE_X, 10));
+		s.setMaximumSize(new Dimension(Const.SIZE_X, 50));
+		s.setMinimumSize(new Dimension(0, 15));
 		
 		// Setup group layout
 		SequentialGroup hgroup = g.createSequentialGroup();
@@ -110,7 +149,25 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 		
 		g.setAutoCreateGaps(false);
 		g.setAutoCreateContainerGaps(false);
+	}
+	
+	private void initExitWindow() {
+		exit.setLayout(new BoxLayout(exit, BoxLayout.Y_AXIS));
+		JLabel score = new JLabel(Const.SCORE);
+		score.setFont(Const.F);
+		score.setForeground(Color.red);
+		JLabel points = new JLabel("" + this.points);
+		points.setFont(Const.F);
+		points.setForeground(Color.red);
+		JButton exitButton = new JButton(Const.EXIT);
+		exitButton.addActionListener(this);
 		
+		exit.add(Box.createVerticalGlue());
+		addCenter(score, exit);
+		addCenter(points, exit);
+		exit.add(Box.createVerticalGlue());
+		addCenter(exitButton, exit);
+		exit.add(Box.createVerticalGlue());
 	}
 	
 	private void addCenter(JComponent c, Container con) {
@@ -177,15 +234,19 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 			p.redraw();
 			next.setEnabled(false);
 			submit.setEnabled(true);
-			console.append("\n\n");
+			console.append("\n");
 			mode = Const.Mode.QUES;
 		} else if(arg0.getActionCommand().equals(Const.START)) {
 			mode = Const.Mode.QUES;
-			System.exit(0);
+			initGameWindow();
+			CardLayout cl = (CardLayout)windows.getLayout();
+			cl.show(windows, Const.START);
 		} else if(arg0.getActionCommand().equals(Const.EXIT)) {
 			System.exit(0);
 		} else if(arg0.getActionCommand().equals(Const.QUIT)) {
-			System.exit(0);
+			initExitWindow();
+			CardLayout cl = (CardLayout)windows.getLayout();
+			cl.show(windows, Const.QUIT);
 		}
 	}
 

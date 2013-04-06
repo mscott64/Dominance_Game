@@ -37,6 +37,7 @@ public interface Const {
 	public static final String BY = " by node: ";
 	public static final String QUIT = "Quit";
 	public static final String EXIT = "Exit";
+	public static final String BEGIN = "Begin";
 	
 	public enum Mode {START, QUES, REV, QUIT};
 	
