@@ -1,7 +1,10 @@
-package cfg;
+package gui;
 
 import java.awt.Graphics;
 import javax.swing.*;
+
+import cfg.CFG;
+import cfg.Const;
 
 @SuppressWarnings("serial")
 public class CFGPanel extends JPanel {

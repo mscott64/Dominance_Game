@@ -1,7 +1,9 @@
-package cfg;
+package gui;
 
 import java.applet.*;
 import java.awt.*;
+
+import cfg.CFG;
 
 public class TestApplet extends Applet {
 	private static final long serialVersionUID = 1L;

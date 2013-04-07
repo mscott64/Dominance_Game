@@ -1,7 +1,9 @@
-package cfg;
+package gui;
 
 import java.awt.Color;
 import javax.swing.*;
+
+import cfg.CFG;
 
 @SuppressWarnings("serial")
 public class TestFrame extends JFrame {

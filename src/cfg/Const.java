@@ -37,9 +37,18 @@ public interface Const {
 	public static final String BY = " by node: ";
 	public static final String QUIT = "Quit";
 	public static final String EXIT = "Exit";
-	public static final String BEGIN = "Begin";
+	public static final String GAME = "Game";
+	public static final String ROUND = "ROUND";
+	public static final String HOW_TO = "How to Play";
+	public static final String REPLAY = "Play Again";
 	
-	public enum Mode {START, QUES, REV, QUIT};
+	public static final Font F = new Font(Font.SANS_SERIF, Font.PLAIN, 22);
+	public static final Font TITLE_F = new Font(Font.SANS_SERIF, Font.BOLD, 36);
+	public static final Font TITLE_BUTTON_F = new Font(Font.SANS_SERIF, Font.PLAIN, 24);
 	
-	public static final Font F = new Font(Font.SERIF, Font.PLAIN, 22);
+	/* Game play */
+	public enum Mode {START, INSTR, ROUND, QUES, REV, QUIT};
+	public static final int NUM_ROUNDS = 5;
+	public static final int QUES_PER_ROUND = 10;
+	
 }

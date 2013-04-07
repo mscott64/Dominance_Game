@@ -13,20 +13,26 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 	
 	private CFGPanel p;
 	private JTextArea console;
-	private int points = 0;
 	private Node curr;
 	private HashSet<Node> selected = new HashSet<Node>();
 	private JLabel pts;
 	private JLabel node;
 	private JLabel ques2;
-	private boolean ques_dom = true;
+	private JLabel round_num;
+	private JLabel final_points;
+	private boolean ques_dom;
 	private Random r = new Random();
 	private JButton next;
 	private JButton submit;
-	private Const.Mode mode = Const.Mode.QUES;
+	private Const.Mode mode = Const.Mode.START;
+	
+	private int points = 0;
+	private int ques = 0;
+	private int rnd = 1;
 	
 	private JPanel windows;
 	private Container start;
+	private Container round;
 	private Container game;
 	private Container exit;
 	
@@ -36,29 +42,35 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 		setSize(Const.SIZE_X, Const.SIZE_Y);
 		
 		start = new Container();
+		round = new Container();
 		game = new Container();
 		exit = new Container();
 		
 		windows = new JPanel(new CardLayout());
 		windows.setBackground(Color.black);
 		initStartWindow();
+		initRoundWindow(rnd);
+		initGameWindow();
+		initExitWindow();
 		
-		windows.add(start, Const.BEGIN);
-		windows.add(game, Const.START);
+		windows.add(start, Const.START);
+		windows.add(round, Const.ROUND);
+		windows.add(game, Const.GAME);
 		windows.add(exit, Const.QUIT);
 		
 		setContentPane(windows);
 		CardLayout cl = (CardLayout)windows.getLayout();
-		cl.show(windows, Const.BEGIN);
+		cl.show(windows, Const.START);
 	}
 	
 	private void initStartWindow() {
 		start.setLayout(new BoxLayout(start, BoxLayout.Y_AXIS));
 		JLabel title = new JLabel("DOMINANCE");
-		title.setFont(Const.F);
-		title.setForeground(Color.red);
+		title.setFont(Const.TITLE_F);
+		title.setForeground(Color.white);
 		
 		JButton startButton = new JButton(Const.START);
+		startButton.setFont(Const.TITLE_BUTTON_F);
 		startButton.addActionListener(this);
 		
 		start.add(Box.createVerticalGlue());
@@ -124,9 +136,10 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 		//Console creation
 		console = new JTextArea("");
 		console.setLineWrap(true);
+		console.setFont(Const.F);
 		JScrollPane s = new JScrollPane(console);
 		s.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		s.setMaximumSize(new Dimension(Const.SIZE_X, 50));
+		s.setMaximumSize(new Dimension(Const.SIZE_X, 32));
 		s.setMinimumSize(new Dimension(0, 15));
 		
 		// Setup group layout
@@ -154,20 +167,47 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 	private void initExitWindow() {
 		exit.setLayout(new BoxLayout(exit, BoxLayout.Y_AXIS));
 		JLabel score = new JLabel(Const.SCORE);
-		score.setFont(Const.F);
-		score.setForeground(Color.red);
-		JLabel points = new JLabel("" + this.points);
-		points.setFont(Const.F);
-		points.setForeground(Color.red);
+		score.setFont(Const.TITLE_F);
+		score.setForeground(Color.white);
+		final_points = new JLabel("" + this.points);
+		final_points.setFont(Const.TITLE_F);
+		final_points.setForeground(Color.white);
+		JButton replayButton = new JButton(Const.REPLAY);
+		replayButton.setFont(Const.TITLE_BUTTON_F);
+		replayButton.addActionListener(this);
 		JButton exitButton = new JButton(Const.EXIT);
+		exitButton.setFont(Const.TITLE_BUTTON_F);
 		exitButton.addActionListener(this);
 		
 		exit.add(Box.createVerticalGlue());
 		addCenter(score, exit);
-		addCenter(points, exit);
+		addCenter(final_points, exit);
 		exit.add(Box.createVerticalGlue());
+		addCenter(replayButton, exit);
+		exit.add(Box.createVerticalStrut(10));
 		addCenter(exitButton, exit);
 		exit.add(Box.createVerticalGlue());
+	}
+
+	private void initRoundWindow(int round) {
+		this.round.setLayout(new BoxLayout(this.round, BoxLayout.Y_AXIS));
+		JLabel title = new JLabel(Const.ROUND);
+		title.setFont(Const.TITLE_F);
+		title.setForeground(Color.white);
+		round_num = new JLabel("" + round);
+		round_num.setFont(Const.TITLE_F);
+		round_num.setForeground(Color.white);
+		JButton next = new JButton(Const.NEXT);
+		next.addActionListener(this);
+		next.setFont(Const.TITLE_BUTTON_F);
+		
+		this.round.add(Box.createVerticalGlue());
+		addCenter(title, this.round);
+		this.round.add(Box.createVerticalStrut(5));
+		addCenter(round_num, this.round);
+		this.round.add(Box.createVerticalGlue());
+		addCenter(next, this.round);
+		this.round.add(Box.createVerticalGlue());
 	}
 	
 	private void addCenter(JComponent c, Container con) {
@@ -214,6 +254,8 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		if(arg0.getActionCommand().equals(Const.SUB)) {
+			mode = Const.Mode.REV;
+			ques++;
 			if(ques_dom) 
 				checkDominance();
 			else
@@ -222,8 +264,44 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 			next.setEnabled(true);
 			submit.setEnabled(false);
 			selected.clear();
-			mode = Const.Mode.REV;
 		} else if(arg0.getActionCommand().equals(Const.NEXT)) {
+			newQuestion();
+		} else if(arg0.getActionCommand().equals(Const.START)) {
+			mode = Const.Mode.ROUND;
+			CardLayout cl = (CardLayout)windows.getLayout();
+			cl.show(windows, Const.ROUND);
+		} else if(arg0.getActionCommand().equals(Const.EXIT)) {
+			System.exit(0);
+		} else if(arg0.getActionCommand().equals(Const.QUIT)) {
+			final_points.setText(Integer.toString(points));
+			CardLayout cl = (CardLayout)windows.getLayout();
+			cl.show(windows, Const.QUIT);
+		} else if(arg0.getActionCommand().equals(Const.REPLAY)) {
+			rnd = 1; ques = 0; points = 0;
+			pts.setText(Integer.toString(points));
+			newQuestion();
+		}
+	}
+
+	private void newQuestion() {
+		if(ques == Const.QUES_PER_ROUND) {
+			if(rnd == Const.NUM_ROUNDS) {
+				final_points.setText(Integer.toString(points));
+				CardLayout cl = (CardLayout)windows.getLayout();
+				cl.show(windows, Const.QUIT);
+			} else {
+				mode = Const.Mode.ROUND;
+				rnd++; ques = 0;
+				round_num.setText("" + rnd);
+				CardLayout cl = (CardLayout)windows.getLayout();
+				cl.show(windows, Const.ROUND);
+			}
+		} else {
+			mode = Const.Mode.QUES;
+			if(ques == 0) {
+				CardLayout cl = (CardLayout)windows.getLayout();
+				cl.show(windows, Const.GAME);
+			}
 			ques_dom = r.nextBoolean();
 			if(ques_dom)
 				ques2.setText(Const.QUES2_DOM);
@@ -235,18 +313,6 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 			next.setEnabled(false);
 			submit.setEnabled(true);
 			console.append("\n");
-			mode = Const.Mode.QUES;
-		} else if(arg0.getActionCommand().equals(Const.START)) {
-			mode = Const.Mode.QUES;
-			initGameWindow();
-			CardLayout cl = (CardLayout)windows.getLayout();
-			cl.show(windows, Const.START);
-		} else if(arg0.getActionCommand().equals(Const.EXIT)) {
-			System.exit(0);
-		} else if(arg0.getActionCommand().equals(Const.QUIT)) {
-			initExitWindow();
-			CardLayout cl = (CardLayout)windows.getLayout();
-			cl.show(windows, Const.QUIT);
 		}
 	}
 
