@@ -20,6 +20,9 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 	private JLabel ques2;
 	private JLabel round_num;
 	private JLabel final_points;
+	private JLabel lives;
+	private JLabel new_life;
+	private JLabel round_play;
 	private boolean ques_dom;
 	private Random r = new Random();
 	private JButton next;
@@ -29,6 +32,8 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 	private int points = 0;
 	private int ques = 0;
 	private int rnd = 1;
+	private int lvs = Const.NUM_LIVES;
+	private boolean perfect_round = true;
 	
 	private JPanel windows;
 	private Container start;
@@ -114,7 +119,18 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 		ques3.setFont(Const.F);
 		node = new JLabel(curr.getLabel());
 		node.setFont(Const.F);
+		lives = new JLabel(Integer.toString(lvs));
+		lives.setFont(Const.F);
+		JLabel life_ct = new JLabel(Const.LIVES);
+		life_ct.setFont(Const.F);
+		JLabel r = new JLabel(Const.ROUND_L);
+		r.setFont(Const.F);
+		round_play = new JLabel(Integer.toString(rnd));
+		round_play.setFont(Const.F);
 		
+		play.add(Box.createVerticalGlue());
+		addCenter(r, play);
+		addCenter(round_play, play);
 		play.add(Box.createVerticalGlue());
 		addCenter(ques1, play);
 		addCenter(ques2, play);
@@ -127,6 +143,9 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 		addCenter(next, play);
 		play.add(Box.createRigidArea(new Dimension(0, 10)));
 		addCenter(quit, play);
+		play.add(Box.createVerticalGlue());
+		addCenter(life_ct, play);
+		addCenter(lives, play);
 		play.add(Box.createVerticalGlue());
 		addCenter(score, play);
 		play.add(Box.createRigidArea(new Dimension(0, 5)));
@@ -200,6 +219,10 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 		JButton next = new JButton(Const.NEXT);
 		next.addActionListener(this);
 		next.setFont(Const.TITLE_BUTTON_F);
+		new_life = new JLabel(Const.NEW_LIFE);
+		new_life.setFont(Const.TITLE_BUTTON_F);
+		new_life.setForeground(Color.white);
+		new_life.setVisible(false);
 		
 		this.round.add(Box.createVerticalGlue());
 		addCenter(title, this.round);
@@ -207,6 +230,8 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 		addCenter(round_num, this.round);
 		this.round.add(Box.createVerticalGlue());
 		addCenter(next, this.round);
+		this.round.add(Box.createVerticalGlue());
+		addCenter(new_life, this.round);
 		this.round.add(Box.createVerticalGlue());
 	}
 	
@@ -256,10 +281,15 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 		if(arg0.getActionCommand().equals(Const.SUB)) {
 			mode = Const.Mode.REV;
 			ques++;
+			boolean perfect;
 			if(ques_dom) 
-				checkDominance();
+				perfect = checkDominance();
 			else
-				checkPostdominance();
+				perfect = checkPostdominance();
+			if(!perfect) {
+				lives.setText(Integer.toString(--lvs));
+				perfect_round = false;
+			}
 			pts.setText(Integer.toString(points));
 			next.setEnabled(true);
 			submit.setEnabled(false);
@@ -277,22 +307,30 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 			CardLayout cl = (CardLayout)windows.getLayout();
 			cl.show(windows, Const.QUIT);
 		} else if(arg0.getActionCommand().equals(Const.REPLAY)) {
-			rnd = 1; ques = 0; points = 0;
+			rnd = 1; ques = 0; points = 0; lvs = Const.NUM_LIVES;
 			pts.setText(Integer.toString(points));
+			lives.setText(Integer.toString(lvs));
 			newQuestion();
 		}
 	}
 
 	private void newQuestion() {
-		if(ques == Const.QUES_PER_ROUND) {
-			if(rnd == Const.NUM_ROUNDS) {
+		if(ques == Const.QUES_PER_ROUND || lvs == 0) {
+			if(rnd == Const.NUM_ROUNDS || lvs == 0) {
 				final_points.setText(Integer.toString(points));
 				CardLayout cl = (CardLayout)windows.getLayout();
 				cl.show(windows, Const.QUIT);
 			} else {
+				if(perfect_round) {
+					lives.setText(Integer.toString(++lvs));
+					new_life.setVisible(true);
+				} else {
+					new_life.setVisible(false);
+				}
 				mode = Const.Mode.ROUND;
-				rnd++; ques = 0;
-				round_num.setText("" + rnd);
+				ques = 0; perfect_round = true;
+				round_num.setText(Integer.toString(++rnd));
+				round_play.setText(Integer.toString(rnd));
 				CardLayout cl = (CardLayout)windows.getLayout();
 				cl.show(windows, Const.ROUND);
 			}
@@ -316,7 +354,8 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 		}
 	}
 
-	private void checkDominance() {
+	private boolean checkDominance() {
+		boolean perfect = true;
 		for(Node n : selected) {
 			n.notSelected();
 			if(curr.isInDominance(n)) {
@@ -325,19 +364,24 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 			} else {
 				points -= 5;
 				n.draw(p.getGraphics(), Color.red);
+				perfect = false;
 			}
 		}
 		for(Node n : curr.getDominance()) {
-			if(!selected.contains(n))
+			if(!selected.contains(n)) {
 				n.draw(p.getGraphics(), Color.yellow);
+				perfect = false;
+			}
 		}
 		if(curr.getDominance().isEmpty() && selected.isEmpty()) {
 			points += 25;
 			console.append("\n" + "That's right! No nodes are dominated by node " + curr.getLabel());
 		}
+		return perfect;
 	}
 	
-	private void checkPostdominance() {
+	private boolean checkPostdominance() {
+		boolean perfect = true;
 		for(Node n : selected) {
 			n.notSelected();
 			if(curr.isInPostdominance(n)) {
@@ -346,16 +390,20 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 			} else {
 				points -= 5;
 				n.draw(p.getGraphics(), Color.red);
+				perfect = false;
 			}
 		}
 		for(Node n : curr.getPostdominance()) {
-			if(!selected.contains(n))
+			if(!selected.contains(n)) {
 				n.draw(p.getGraphics(), Color.yellow);
+				perfect = false;
+			}
 		}
 		if(curr.getPostdominance().isEmpty() && selected.isEmpty()) {
 			points += 25;
 			console.append("\n" + "That's right! No nodes are postdominated by node " + curr.getLabel());
 		}
+		return perfect;
 	}
 	
 	@Override

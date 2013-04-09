@@ -39,8 +39,11 @@ public interface Const {
 	public static final String EXIT = "Exit";
 	public static final String GAME = "Game";
 	public static final String ROUND = "ROUND";
+	public static final String ROUND_L = "Round:";
 	public static final String HOW_TO = "How to Play";
 	public static final String REPLAY = "Play Again";
+	public static final String LIVES = "Lives:";
+	public static final String NEW_LIFE = "You earned a new life!";
 	
 	public static final Font F = new Font(Font.SANS_SERIF, Font.PLAIN, 22);
 	public static final Font TITLE_F = new Font(Font.SANS_SERIF, Font.BOLD, 36);
@@ -50,5 +53,6 @@ public interface Const {
 	public enum Mode {START, INSTR, ROUND, QUES, REV, QUIT};
 	public static final int NUM_ROUNDS = 5;
 	public static final int QUES_PER_ROUND = 10;
+	public static final int NUM_LIVES = 5;
 	
 }
