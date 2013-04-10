@@ -1,51 +1,62 @@
 package cfg;
 
 import java.awt.Graphics;
-import java.util.ArrayList;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.StringTokenizer;
-import java.util.Random;
+import java.io.*;
+import java.util.*;
 
 public class CFG {
 	
 	private ArrayList<Node> nodes;
 	private ArrayList<Edge> edges;
-	Random r;
+	private Random r;
+	private HashMap<Integer, ArrayList<Node>> dom;
+	private HashMap<Integer, ArrayList<Node>> postdom;
+	private boolean[] levels_dom;
+	private boolean[] levels_postdom;
 	
 	public CFG() {
 		nodes = new ArrayList<Node>();
 		edges = new ArrayList<Edge>();
 		r = new Random();
+		dom = new HashMap<Integer, ArrayList<Node>>();
+		postdom = new HashMap<Integer, ArrayList<Node>>();
+		levels_dom = new boolean[Const.LEVELS];
+		levels_postdom = new boolean[Const.LEVELS];
+		for(int i = 0; i < Const.LEVELS; i++) {
+			levels_dom[i] = false;
+			levels_postdom[i] = false;
+			dom.put(i+1, new ArrayList<Node>());
+			postdom.put(i+1, new ArrayList<Node>());
+		}
 	}
 	
 	public ArrayList<Node> getNodes() {
 		return nodes;
 	}
 	
-	public void setNodes(ArrayList<Node> nodes) {
-		this.nodes = nodes;
-	}
-	
 	public void addNode(Node n) {
 		nodes.add(n);
-	}
-	
-	public void removeNode(Node n) {
-		nodes.remove(n);
-	}
-	
-	public void setEdges(ArrayList<Edge> edges) {
-		this.edges = edges;
 	}
 	
 	public void addEdge(Edge e) {
 		edges.add(e);
 	}
 	
-	public void removeEdge(Edge e) {
-		edges.remove(e);
+	public void addDom(Node n, int level) {
+		dom.get(level).add(n);
+		levels_dom[level - 1] = true;
+	}
+	
+	public void addPostdom(Node n, int level) {
+		postdom.get(level).add(n);
+		levels_postdom[level - 1] = true;
+	}
+	
+	public boolean hasLevel(int level, boolean isDom) {
+		if(isDom)
+			return levels_dom[level - 1];
+		else
+			return levels_postdom[level - 1];
 	}
 	
 	public Node getNode(String label) {
@@ -65,7 +76,16 @@ public class CFG {
 	}
 	
 	public Node randomNode() {
-		return getNode(Integer.toString(r.nextInt(nodes.size() - 1) + 1));
+		return getNode(Integer.toString(r.nextInt(nodes.size()) + 1));
+	}
+	
+	public Node randomNode(int level, boolean isDom) {
+		ArrayList<Node> nodes;
+		if(isDom)
+			nodes = dom.get(level);
+		else
+			nodes = postdom.get(level);
+		return nodes.get(r.nextInt(nodes.size()));
 	}
 	
 	public void draw(Graphics g) {
@@ -144,6 +164,8 @@ public class CFG {
 					case DOM:
 						if(loc == 0) {
 							n = c.getNode(tok);
+						} else if(loc == 1) {
+							c.addDom(n, Integer.parseInt(tok));
 						} else {
 							n.addDominance(c.getNode(tok));
 						}
@@ -152,6 +174,8 @@ public class CFG {
 					case POSTDOM:
 						if(loc == 0) {
 							n = c.getNode(tok);
+						} else if(loc == 1) {
+							c.addPostdom(n, Integer.parseInt(tok));
 						} else {
 							n.addPostdominance(c.getNode(tok));
 						}

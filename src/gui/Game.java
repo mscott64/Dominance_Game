@@ -90,9 +90,9 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 		game.setLayout(g);
 		
 		// Set up CFG display
-		p = new CFGPanel(CFG.readFromFile(Const.DEFAULT_PATH + "cfg1.txt"));
+		p = new CFGPanel();
+		p.init();
 		p.addMouseListener(this);
-		curr = p.getCFG().randomNode();
 		
 		// Create game play panel
 		JPanel play = new JPanel();
@@ -117,7 +117,7 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 		ques2.setFont(Const.F);
 		JLabel ques3 = new JLabel(Const.BY);
 		ques3.setFont(Const.F);
-		node = new JLabel(curr.getLabel());
+		node = new JLabel();
 		node.setFont(Const.F);
 		lives = new JLabel(Integer.toString(lvs));
 		lives.setFont(Const.F);
@@ -310,6 +310,7 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 			rnd = 1; ques = 0; points = 0; lvs = Const.NUM_LIVES;
 			pts.setText(Integer.toString(points));
 			lives.setText(Integer.toString(lvs));
+			round_play.setText(Integer.toString(rnd));
 			newQuestion();
 		}
 	}
@@ -345,7 +346,7 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 				ques2.setText(Const.QUES2_DOM);
 			else
 				ques2.setText(Const.QUES2_PDOM);
-			curr = p.getCFG().randomNode();
+			curr = p.randomNode(rnd, ques_dom);
 			node.setText(curr.getLabel());
 			p.redraw();
 			next.setEnabled(false);

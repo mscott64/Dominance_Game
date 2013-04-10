@@ -14,7 +14,7 @@ public class TestFrame extends JFrame {
 		setSize(SIZE_X, SIZE_Y);
 		
 		CFGPanel p = new CFGPanel();
-		p.setCFG(CFG.readFromFile(DEFAULT_PATH + "cfg1.txt"));
+		//p.setCFG(CFG.readFromFile(DEFAULT_PATH + "cfg1.txt"));
 		//p.addMouseListener(p);
 		add(p);
 	}
