@@ -13,7 +13,7 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 	
 	private CFGPanel p;
 	private JTextArea console;
-	private Node curr;
+	private Question q;
 	private HashSet<Node> selected = new HashSet<Node>();
 	private JLabel pts;
 	private JLabel node;
@@ -23,8 +23,7 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 	private JLabel lives;
 	private JLabel new_life;
 	private JLabel round_play;
-	private boolean ques_dom;
-	private Random r = new Random();
+	private JLabel complete;
 	private JButton next;
 	private JButton submit;
 	private Const.Mode mode = Const.Mode.START;
@@ -33,6 +32,7 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 	private int ques = 0;
 	private int rnd = 1;
 	private int lvs = Const.NUM_LIVES;
+	private int total_ques = 0;
 	private boolean perfect_round = true;
 	
 	private JPanel windows;
@@ -93,6 +93,7 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 		p = new CFGPanel();
 		p.init();
 		p.addMouseListener(this);
+		p.printStats();
 		
 		// Create game play panel
 		JPanel play = new JPanel();
@@ -197,6 +198,10 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 		JButton exitButton = new JButton(Const.EXIT);
 		exitButton.setFont(Const.TITLE_BUTTON_F);
 		exitButton.addActionListener(this);
+		complete = new JLabel(Const.COMPLETE);
+		complete.setFont(Const.TITLE_BUTTON_F);
+		complete.setForeground(Color.white);
+		complete.setVisible(false);
 		
 		exit.add(Box.createVerticalGlue());
 		addCenter(score, exit);
@@ -205,6 +210,8 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 		addCenter(replayButton, exit);
 		exit.add(Box.createVerticalStrut(10));
 		addCenter(exitButton, exit);
+		exit.add(Box.createVerticalGlue());
+		addCenter(complete, exit);
 		exit.add(Box.createVerticalGlue());
 	}
 
@@ -267,9 +274,9 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 					selected.add(n);
 				}
 			} else if(mode == Const.Mode.REV) {
-				if(n.equals(curr) && ques_dom) {
+				if(n.equals(q.getNode()) && q.isDom()) {
 					console.append("\n A node always dominates itself.");
-				} else if(n.equals(curr) && !ques_dom) {
+				} else if(n.equals(q.getNode()) && !q.isDom()) {
 					console.append("\n A node never postdominates itself.");
 				}
 			}
@@ -282,7 +289,7 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 			mode = Const.Mode.REV;
 			ques++;
 			boolean perfect;
-			if(ques_dom) 
+			if(q.isDom()) 
 				perfect = checkDominance();
 			else
 				perfect = checkPostdominance();
@@ -294,6 +301,7 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 			next.setEnabled(true);
 			submit.setEnabled(false);
 			selected.clear();
+			total_ques++;
 		} else if(arg0.getActionCommand().equals(Const.NEXT)) {
 			newQuestion();
 		} else if(arg0.getActionCommand().equals(Const.START)) {
@@ -304,13 +312,17 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 			System.exit(0);
 		} else if(arg0.getActionCommand().equals(Const.QUIT)) {
 			final_points.setText(Integer.toString(points));
+			if(total_ques == Const.NUM_ROUNDS * Const.QUES_PER_ROUND && lvs > 0)
+				complete.setVisible(true);
 			CardLayout cl = (CardLayout)windows.getLayout();
 			cl.show(windows, Const.QUIT);
 		} else if(arg0.getActionCommand().equals(Const.REPLAY)) {
-			rnd = 1; ques = 0; points = 0; lvs = Const.NUM_LIVES;
+			rnd = 1; ques = 0; points = 0; lvs = Const.NUM_LIVES; total_ques = 0;
 			pts.setText(Integer.toString(points));
 			lives.setText(Integer.toString(lvs));
 			round_play.setText(Integer.toString(rnd));
+			complete.setVisible(false);
+			p.reset();
 			newQuestion();
 		}
 	}
@@ -319,6 +331,8 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 		if(ques == Const.QUES_PER_ROUND || lvs == 0) {
 			if(rnd == Const.NUM_ROUNDS || lvs == 0) {
 				final_points.setText(Integer.toString(points));
+				if(total_ques == Const.NUM_ROUNDS * Const.QUES_PER_ROUND && lvs > 0)
+					complete.setVisible(true);
 				CardLayout cl = (CardLayout)windows.getLayout();
 				cl.show(windows, Const.QUIT);
 			} else {
@@ -341,13 +355,12 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 				CardLayout cl = (CardLayout)windows.getLayout();
 				cl.show(windows, Const.GAME);
 			}
-			ques_dom = r.nextBoolean();
-			if(ques_dom)
+			q = p.randomQuestion(rnd);
+			if(q.isDom())
 				ques2.setText(Const.QUES2_DOM);
 			else
 				ques2.setText(Const.QUES2_PDOM);
-			curr = p.randomNode(rnd, ques_dom);
-			node.setText(curr.getLabel());
+			node.setText(q.getNode().getLabel());
 			p.redraw();
 			next.setEnabled(false);
 			submit.setEnabled(true);
@@ -357,6 +370,7 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 
 	private boolean checkDominance() {
 		boolean perfect = true;
+		Node curr = q.getNode();
 		for(Node n : selected) {
 			n.notSelected();
 			if(curr.isInDominance(n)) {
@@ -383,6 +397,7 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 	
 	private boolean checkPostdominance() {
 		boolean perfect = true;
+		Node curr = q.getNode();
 		for(Node n : selected) {
 			n.notSelected();
 			if(curr.isInPostdominance(n)) {
@@ -409,26 +424,22 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 	
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
+		// Do nothing
 	}
 
 	@Override
 	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
+		// Do nothing
 	}
 
 	@Override
 	public void mousePressed(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
+		// Do nothing
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
+		// Do nothing
 	}
 	
 }

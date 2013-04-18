@@ -141,7 +141,15 @@ public class Node {
 		return postdom.contains(n);
 	}
 	
-	public boolean equals(Node n) {
+	@Override
+	public boolean equals(Object o) {
+		if(o == this)
+			return true;
+		
+		if(o == null || o.getClass() != this.getClass())
+			return false;
+		
+		Node n = (Node) o;
 		Pos n_pos = n.getPosition();
 		String n_label = n.getLabel();
 		return n_pos.equals(pos) && n_label.equals(label);

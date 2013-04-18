@@ -51,10 +51,13 @@ public interface Const {
 	
 	/* Game play */
 	public enum Mode {START, INSTR, ROUND, QUES, REV, QUIT};
-	public static final int NUM_ROUNDS = 4;//5;
-	public static final int QUES_PER_ROUND = 3;//10;
-	public static final int NUM_LIVES = 3;//5;
-	public static final int NUM_CFGS = 4;
+	public static final int NUM_ROUNDS = 5;
+	public static final int QUES_PER_ROUND = 10;
+	public static final int NUM_LIVES = 5;
+	public static final int NUM_CFGS = 13;
 	public static final int LEVELS = NUM_ROUNDS;
+	public static final String COMPLETE = "You completed all " + NUM_ROUNDS + " rounds!";
+	public static final boolean IS_DOM = true;
+	public static final boolean IS_POSTDOM = false;
 	
 }
