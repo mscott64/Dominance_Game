@@ -4,9 +4,7 @@ import java.awt.Graphics;
 import javax.swing.*;
 import java.util.*;
 
-import cfg.CFG;
-import cfg.Node;
-import cfg.Const;
+import cfg.*;
 
 @SuppressWarnings("serial")
 public class CFGPanel extends JPanel {

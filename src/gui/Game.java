@@ -6,7 +6,6 @@ import java.util.HashSet;
 import cfg.*;
 import javax.swing.*;
 import javax.swing.GroupLayout.*;
-import java.util.Random;
 
 @SuppressWarnings("serial")
 public class Game extends JFrame implements MouseListener, ActionListener {

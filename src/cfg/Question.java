@@ -1,6 +1,4 @@
-package gui;
-
-import cfg.*;
+package cfg;
 
 public class Question {
 	
