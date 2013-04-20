@@ -54,7 +54,7 @@ public interface Const {
 	public static final int NUM_ROUNDS = 5;
 	public static final int QUES_PER_ROUND = 10;
 	public static final int NUM_LIVES = 5;
-	public static final int NUM_CFGS = 13;
+	public static final int NUM_CFGS = 15;
 	public static final int LEVELS = NUM_ROUNDS;
 	public static final String COMPLETE = "You completed all " + NUM_ROUNDS + " rounds!";
 	public static final boolean IS_DOM = true;

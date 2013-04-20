@@ -15,7 +15,7 @@ public class TestApplet extends Applet {
 	}
 	
 	public void paint(Graphics g) {
-		CFG c = CFG.readFromFile(Const.DEFAULT_PATH + "cfg13.txt");
+		CFG c = CFG.readFromFile(Const.DEFAULT_PATH + "cfg12.txt");
 		if(c != null)
 			c.draw(g);
 	}

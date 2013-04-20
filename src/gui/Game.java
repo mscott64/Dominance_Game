@@ -92,7 +92,7 @@ public class Game extends JFrame implements MouseListener, ActionListener {
 		p = new CFGPanel();
 		p.init();
 		p.addMouseListener(this);
-		p.printStats();
+		//p.printStats();
 		
 		// Create game play panel
 		JPanel play = new JPanel();
