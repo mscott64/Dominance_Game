@@ -16,7 +16,6 @@ public interface Const {
 	public static final String CHILDREN = "CHILDREN";
 	public static final String DOMINANCE = "DOMINANCE";
 	public static final String POSTDOMINANCE = "POSTDOMINANCE";
-	public static final String DEFAULT_PATH = "C:\\Users\\Michelle\\workspace\\DominanceGame\\resources\\";
 	
 	/* Window size */
 	public static final int SIZE_X = 650;

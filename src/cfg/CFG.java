@@ -83,7 +83,9 @@ public class CFG {
 		Node n = null;
 		Edge e = null;
 		try {
-			br = new BufferedReader(new FileReader(filename));
+			InputStream in = CFG.class.getClassLoader().getResourceAsStream(filename);
+			if(in == null) throw(new IOException());
+			br = new BufferedReader(new InputStreamReader(in));
 			while((line = br.readLine()) != null) {
 				StringTokenizer st = new StringTokenizer(line);
 				if(i == Const.Info.INIT) 

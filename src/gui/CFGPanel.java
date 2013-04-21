@@ -36,7 +36,8 @@ public class CFGPanel extends JPanel {
 	
 	public void init() {
 		for(int i = 1; i <= Const.NUM_CFGS; i++) {
-			CFG c = CFG.readFromFile(Const.DEFAULT_PATH + "cfg" + i + ".txt");
+			CFG c = CFG.readFromFile("cfg" + i + ".txt");
+			
 			for(int j = 1; j <= Const.LEVELS; j++) {
 				ArrayList<Node> dom = c.getDom(j);
 				for(Node n : dom) {
@@ -58,7 +59,7 @@ public class CFGPanel extends JPanel {
 		ques = this.ques.get(level);
 		
 		if(ques.size() < 1)
-			throw(new Error("No cfgs with that level"));
+			throw(new Error("No cfgs with that level."));
 		
 		Question q = ques.remove(r.nextInt(ques.size()));
 		questions.add(q);
